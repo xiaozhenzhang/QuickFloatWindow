@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">QuickFloatWindow</string>
+    <string name="link_service">连接服务</string>
+    <string name="interrupt_service">中断服务</string>
+    <string name="accessibility_description">辅助功能</string>
+    <string name="tip_open_accessibility">找到%1$s，然后开启服务即可</string>
+</resources>
