@@ -110,7 +110,7 @@ public class FloatWindowView extends LinearLayout {
     }
 
     /**
-     * 执行shell命令
+     * 执行shell命令，但是有延迟
      *
      * @param cmd
      */
@@ -185,7 +185,9 @@ public class FloatWindowView extends LinearLayout {
                 x = (int) (xInScreen - xDownInScreen);
                 y = (int) (yInScreen - yDownInScreen);
                 if (Math.abs(x) < TOUCH_SLOP && Math.abs(y) < TOUCH_SLOP) {
-//                    execShellCmd("input keyevent 4");
+
+//                    execShellCmd("input keyevent 4");//返回键的键值是4
+
                     if (isAccessibilitySettingsOn(getContext())) {
                         EnvelopeService.back();
                     } else {
