@@ -3,6 +3,7 @@ package com.xzz.quickfloatwindow.manager;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
@@ -12,12 +13,12 @@ import com.xzz.quickfloatwindow.view.FloatWindowView;
 public class MyWindowManager {
 
     /**
-     * 小悬浮窗View的实例
+     * 悬浮窗View的实例
      */
     private static FloatWindowView smallWindow;
 
     /**
-     * 小悬浮窗View的参数
+     * 悬浮窗View的参数
      */
     private static LayoutParams smallWindowParams;
 
@@ -27,14 +28,16 @@ public class MyWindowManager {
     private static WindowManager mWindowManager;
 
     /**
-     * 创建一个小悬浮窗。初始位置为屏幕的右部中间位置。
+     * 创建一个悬浮窗。初始位置为屏幕的右部中间位置。
      *
      * @param context 必须为应用程序的Context.
      */
     public static void createSmallWindow(Context context) {
         WindowManager windowManager = getWindowManager(context);
-        int screenWidth = windowManager.getDefaultDisplay().getWidth();
-        int screenHeight = windowManager.getDefaultDisplay().getHeight();
+        Point screenSize = new Point();
+        windowManager.getDefaultDisplay().getSize(screenSize);
+        int screenWidth = screenSize.x;
+        int screenHeight = screenSize.y;
         if (smallWindow == null) {
             smallWindow = new FloatWindowView(context);
             if (smallWindowParams == null) {
@@ -43,7 +46,7 @@ public class MyWindowManager {
                 smallWindowParams.format = PixelFormat.RGBA_8888;
                 smallWindowParams.flags = LayoutParams.FLAG_NOT_TOUCH_MODAL
                         | LayoutParams.FLAG_NOT_FOCUSABLE;
-                smallWindowParams.gravity = Gravity.LEFT | Gravity.TOP;
+                smallWindowParams.gravity = Gravity.START | Gravity.BOTTOM;
                 smallWindowParams.width = FloatWindowView.viewWidth;
                 smallWindowParams.height = FloatWindowView.viewHeight;
                 smallWindowParams.x = screenWidth;
@@ -55,7 +58,7 @@ public class MyWindowManager {
     }
 
     /**
-     * 将小悬浮窗从屏幕上移除。
+     * 将悬浮窗从屏幕上移除。
      *
      * @param context 必须为应用程序的Context.
      */
@@ -68,7 +71,7 @@ public class MyWindowManager {
     }
 
     /**
-     * 是否有悬浮窗(包括小悬浮窗和大悬浮窗)显示在屏幕上。
+     * 是否有悬浮窗显示在屏幕上。
      *
      * @return 有悬浮窗显示在桌面上返回true，没有的话返回false。
      */
