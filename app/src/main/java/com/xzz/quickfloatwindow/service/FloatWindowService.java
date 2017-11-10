@@ -1,21 +1,9 @@
 package com.xzz.quickfloatwindow.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningTaskInfo;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.os.Handler;
 import android.os.IBinder;
-
-import com.xzz.quickfloatwindow.manager.MyWindowManager;
 
 public class FloatWindowService extends Service {
 

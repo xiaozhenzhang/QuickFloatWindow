@@ -1,5 +1,4 @@
-package com.xzz.quickfloatwindow.manager;
-
+package com.xzz.quickfloatwindow.service;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
@@ -28,6 +27,11 @@ public class MyWindowManager {
     private static WindowManager mWindowManager;
 
     /**
+     * 创建悬浮窗时，悬浮窗垂直向上方向距离屏幕中间的距离
+     */
+    private final static int yOffset = 200;
+
+    /**
      * 创建一个悬浮窗。初始位置为屏幕的右部中间位置。
      *
      * @param context 必须为应用程序的Context.
@@ -46,11 +50,11 @@ public class MyWindowManager {
                 smallWindowParams.format = PixelFormat.RGBA_8888;
                 smallWindowParams.flags = LayoutParams.FLAG_NOT_TOUCH_MODAL
                         | LayoutParams.FLAG_NOT_FOCUSABLE;
-                smallWindowParams.gravity = Gravity.START | Gravity.BOTTOM;
+                smallWindowParams.gravity = Gravity.START | Gravity.BOTTOM;// 注意这里设置了gravity的属性为Gravity.START | Gravity.BOTTOM，悬浮窗的原点（0,0）在屏幕的左下角
                 smallWindowParams.width = FloatWindowView.viewWidth;
                 smallWindowParams.height = FloatWindowView.viewHeight;
                 smallWindowParams.x = screenWidth;
-                smallWindowParams.y = screenHeight / 2;
+                smallWindowParams.y = screenHeight / 2 + yOffset;
             }
             smallWindow.setParams(smallWindowParams);
             windowManager.addView(smallWindow, smallWindowParams);

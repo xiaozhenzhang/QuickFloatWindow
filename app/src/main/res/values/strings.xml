@@ -1,7 +1,8 @@
 <resources>
-    <string name="app_name">QuickFloatWindow</string>
+    <string name="app_name">悬浮球</string>
     <string name="link_service">连接服务</string>
     <string name="interrupt_service">中断服务</string>
-    <string name="accessibility_description">辅助功能</string>
+    <string name="accessibility_description">通过辅助功能实现返回功能</string>
     <string name="tip_open_accessibility">找到%1$s，然后开启服务即可</string>
+    <string name="click_show_float_ball">点击显示悬浮球</string>
 </resources>

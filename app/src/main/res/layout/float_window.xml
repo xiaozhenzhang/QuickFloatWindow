@@ -5,11 +5,11 @@
     android:layout_height="50dp"
     android:background="@drawable/bg_float_window">
 
-    <TextView
+    <!--<TextView
         android:id="@+id/tv_float"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:textColor="#ffffff" />
+        android:textColor="#ffffff" />-->
 
 </FrameLayout>

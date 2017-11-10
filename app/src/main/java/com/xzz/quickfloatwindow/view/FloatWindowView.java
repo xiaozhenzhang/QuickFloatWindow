@@ -5,6 +5,9 @@ import java.io.DataOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -17,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,8 +29,12 @@ import com.xzz.quickfloatwindow.R;
 import com.xzz.quickfloatwindow.activity.AdminActivity;
 import com.xzz.quickfloatwindow.receiver.AdminManageReceiver;
 import com.xzz.quickfloatwindow.service.EnvelopeService;
+import com.xzz.quickfloatwindow.service.FloatWindowService;
+import com.xzz.quickfloatwindow.service.MyWindowManager;
 
-public class FloatWindowView extends LinearLayout {
+import static android.content.Context.NOTIFICATION_SERVICE;
+
+public class FloatWindowView extends FrameLayout {
 
     private static final String TAG = "float";
     /**
@@ -93,11 +101,24 @@ public class FloatWindowView extends LinearLayout {
     private boolean isMove = false;
 
     /**
+     * 长按触发的时间，单位ms
+     */
+    private static final int LONG_CLICK_TIME = 2000;
+
+    /**
      * 是否向上移动锁屏。默认是false，即向下移动锁屏
      */
     private boolean isMoveUpLock = false;
 
-    public FloatWindowView(Context context) {
+    /**
+     * 是否长按
+     */
+    private boolean isLongClick;
+
+    private final Runnable mLongPressRunnable;
+    private int mCounter = 0;
+
+    public FloatWindowView(final Context context) {
         super(context);
         windowManager = (WindowManager) context
                 .getSystemService(Context.WINDOW_SERVICE);
@@ -106,7 +127,40 @@ public class FloatWindowView extends LinearLayout {
         viewWidth = view.getLayoutParams().width;
         viewHeight = view.getLayoutParams().height;
 //        tvFloat = (TextView) findViewById(R.id.tv_float);
+        mLongPressRunnable = new Runnable() {
 
+            @Override
+            public void run() {
+                mCounter--;
+                // 计数器大于0，说明当前执行的Runnable不是最后一次down产生的。
+                if (mCounter > 0 || !isLongClick || isMove)
+                    return;
+//                isPerformed = true;
+                showNotification();
+                MyWindowManager.removeSmallWindow(context.getApplicationContext());
+
+            }
+        };
+    }
+
+    private void showNotification() {
+        //全局通知管理者，通过获取系统服务获取
+        Context context = getContext();
+        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        //通知栏构造器,创建通知栏样式
+        Notification.Builder mBuilder = new Notification.Builder(context);
+        // 将来意图，用于点击通知之后的操作,内部的new intent()可用于跳转等操作
+        Intent intent = new Intent(context, FloatWindowService.class);
+        PendingIntent mPendingIntent = PendingIntent.getService(context, 1, intent, PendingIntent.FLAG_ONE_SHOT);
+
+        mBuilder.setContentTitle(context.getString(R.string.app_name)) //设置通知栏标题
+                .setContentText(context.getString(R.string.click_show_float_ball)) // 设置通知栏显示内容
+                .setContentIntent(mPendingIntent) // 设置通知栏点击意图
+                .setSmallIcon(R.mipmap.ic_launcher); // 设置通知小ICON(应用默认图标)
+
+        Notification notification = mBuilder.build();
+        notification.flags = Notification.FLAG_NO_CLEAR | Notification.FLAG_AUTO_CANCEL;
+        mNotificationManager.notify(1, notification);
     }
 
     /**
@@ -136,6 +190,8 @@ public class FloatWindowView extends LinearLayout {
     public boolean onTouchEvent(MotionEvent event) {
         int x;
         int y;
+
+        long currentTimeMillis = 0;
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 // 手指按下时记录必要数据,纵坐标的值都需要减去状态栏高度
@@ -145,8 +201,13 @@ public class FloatWindowView extends LinearLayout {
                 yDownInScreen = event.getRawY() - getStatusBarHeight();
                 xInScreen = event.getRawX();
                 yInScreen = event.getRawY() - getStatusBarHeight();
+
+                isLongClick = true;
+                mCounter++;
+                postDelayed(mLongPressRunnable, LONG_CLICK_TIME);
                 break;
             case MotionEvent.ACTION_MOVE:
+
                 xInScreen = event.getRawX();
                 yInScreen = event.getRawY() - getStatusBarHeight();
 
@@ -172,11 +233,15 @@ public class FloatWindowView extends LinearLayout {
                     if (!mDevicePolicyManager.isAdminActive(new ComponentName(getContext(), AdminManageReceiver.class))) {
                         showAdminManagement();
                     } else {
+                        isLongClick = false;
                         mDevicePolicyManager.lockNow();
                     }
                 }
                 break;
             case MotionEvent.ACTION_UP:
+
+                isLongClick = false;
+
                 if (isMove) {
                     isMove = false;
                     break;
