@@ -28,6 +28,11 @@ public class EnvelopeService extends AccessibilityService {
     protected void onServiceConnected() {
         super.onServiceConnected();
         instance = this;
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+
+        }
         performGlobalAction(GLOBAL_ACTION_BACK);
         Toast.makeText(this, R.string.link_service, Toast.LENGTH_SHORT).show();
     }

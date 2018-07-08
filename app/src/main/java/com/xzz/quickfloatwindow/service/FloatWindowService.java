@@ -21,6 +21,7 @@ public class FloatWindowService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         MyWindowManager.createSmallWindow(getApplicationContext());
+        MyWindowManager.createFullScreenCheckView(getApplicationContext());
         return super.onStartCommand(intent, flags, startId);
     }
 

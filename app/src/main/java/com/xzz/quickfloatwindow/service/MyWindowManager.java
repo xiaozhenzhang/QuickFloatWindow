@@ -3,9 +3,13 @@ package com.xzz.quickfloatwindow.service;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
+import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.widget.Toast;
 
 import com.xzz.quickfloatwindow.view.FloatWindowView;
 
@@ -30,35 +34,84 @@ public class MyWindowManager {
      * 创建悬浮窗时，悬浮窗垂直向上方向距离屏幕中间的距离
      */
     private final static int yOffset = 200;
+    private static View mFullScreenCheckView;
+    private static boolean bIsFullScreen = false;
 
     /**
      * 创建一个悬浮窗。初始位置为屏幕的右部中间位置。
      *
      * @param context 必须为应用程序的Context.
      */
-    public static void createSmallWindow(Context context) {
-        WindowManager windowManager = getWindowManager(context);
+    public static void createSmallWindow(final Context context) {
+        if (smallWindow != null) {
+            return;
+        }
+        final WindowManager windowManager = getWindowManager(context);
         Point screenSize = new Point();
         windowManager.getDefaultDisplay().getSize(screenSize);
         int screenWidth = screenSize.x;
         int screenHeight = screenSize.y;
-        if (smallWindow == null) {
-            smallWindow = new FloatWindowView(context);
-            if (smallWindowParams == null) {
-                smallWindowParams = new LayoutParams();
-                smallWindowParams.type = LayoutParams.TYPE_PHONE;
-                smallWindowParams.format = PixelFormat.RGBA_8888;
-                smallWindowParams.flags = LayoutParams.FLAG_NOT_TOUCH_MODAL
-                        | LayoutParams.FLAG_NOT_FOCUSABLE;
-                smallWindowParams.gravity = Gravity.START | Gravity.BOTTOM;// 注意这里设置了gravity的属性为Gravity.START | Gravity.BOTTOM，悬浮窗的原点（0,0）在屏幕的左下角
-                smallWindowParams.width = FloatWindowView.viewWidth;
-                smallWindowParams.height = FloatWindowView.viewHeight;
-                smallWindowParams.x = screenWidth;
-                smallWindowParams.y = screenHeight / 2 + yOffset;
-            }
-            smallWindow.setParams(smallWindowParams);
-            windowManager.addView(smallWindow, smallWindowParams);
+        smallWindow = new FloatWindowView(context);
+        if (smallWindowParams == null) {
+            smallWindowParams = new LayoutParams();
+            smallWindowParams.type = LayoutParams.TYPE_SYSTEM_ERROR;
+            smallWindowParams.format = PixelFormat.RGBA_8888;
+            smallWindowParams.flags = LayoutParams.FLAG_NOT_TOUCH_MODAL
+                    | LayoutParams.FLAG_NOT_FOCUSABLE;
+            // 注意这里设置了gravity的属性为Gravity.START | Gravity.BOTTOM，悬浮窗的原点（0,0）在屏幕的左下角
+            smallWindowParams.gravity = Gravity.START | Gravity.BOTTOM;
+            smallWindowParams.width = FloatWindowView.viewWidth;
+            smallWindowParams.height = FloatWindowView.viewHeight;
+            smallWindowParams.x = screenWidth;
+            smallWindowParams.y = screenHeight / 4 * 3;
         }
+        smallWindow.setParams(smallWindowParams);
+
+        windowManager.addView(smallWindow, smallWindowParams);
+
+    }
+
+    /**
+     * 创建一个view，用于判断是否全屏
+     *
+     * @param context
+     */
+    public static void createFullScreenCheckView(final Context context) {
+
+        if (mFullScreenCheckView != null) {
+            return;
+        }
+        mFullScreenCheckView = new View(context);
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+        layoutParams.type = LayoutParams.TYPE_PHONE;
+        layoutParams.format = PixelFormat.TRANSPARENT;
+        layoutParams.flags = LayoutParams.FLAG_NOT_FOCUSABLE;
+        layoutParams.gravity = Gravity.END | Gravity.TOP;
+
+        layoutParams.width = 1;
+        layoutParams.height = LayoutParams.MATCH_PARENT;
+
+        mFullScreenCheckView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+            @Override
+            public void onGlobalLayout() {
+
+                DisplayMetrics dm = new DisplayMetrics();
+                mWindowManager.getDefaultDisplay().getMetrics(dm);
+                int viewHeight = mFullScreenCheckView.getHeight();
+                //当view的高度等于竖屏的高度或者横屏的高度时，此时全屏状态
+                if (viewHeight == dm.widthPixels || viewHeight == dm.heightPixels) {
+                    bIsFullScreen = true;
+                    removeSmallWindow(context);
+                } else {
+                    bIsFullScreen = false;
+                    createSmallWindow(context);
+                }
+            }
+
+        });
+
+        mWindowManager.addView(mFullScreenCheckView, layoutParams);
     }
 
     /**

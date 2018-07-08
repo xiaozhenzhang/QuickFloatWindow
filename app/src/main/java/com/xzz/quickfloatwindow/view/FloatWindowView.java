@@ -133,8 +133,9 @@ public class FloatWindowView extends FrameLayout {
             public void run() {
                 mCounter--;
                 // 计数器大于0，说明当前执行的Runnable不是最后一次down产生的。
-                if (mCounter > 0 || !isLongClick || isMove)
+                if (mCounter > 0 || !isLongClick || isMove) {
                     return;
+                }
 //                isPerformed = true;
                 showNotification();
                 MyWindowManager.removeSmallWindow(context.getApplicationContext());
@@ -153,10 +154,15 @@ public class FloatWindowView extends FrameLayout {
         Intent intent = new Intent(context, FloatWindowService.class);
         PendingIntent mPendingIntent = PendingIntent.getService(context, 1, intent, PendingIntent.FLAG_ONE_SHOT);
 
-        mBuilder.setContentTitle(context.getString(R.string.app_name)) //设置通知栏标题
-                .setContentText(context.getString(R.string.click_show_float_ball)) // 设置通知栏显示内容
-                .setContentIntent(mPendingIntent) // 设置通知栏点击意图
-                .setSmallIcon(R.mipmap.ic_launcher); // 设置通知小ICON(应用默认图标)
+        //设置通知栏标题
+        mBuilder.setContentTitle(context.getString(R.string.app_name))
+                // 设置通知栏显示内容
+                .setContentText(context.getString(R.string.click_show_float_ball))
+                // 设置通知栏点击意图
+                .setContentIntent(mPendingIntent)
+                // 设置通知小ICON(应用默认图标)
+                .setSmallIcon(R.mipmap.ic_launcher);
+
 
         Notification notification = mBuilder.build();
         notification.flags = Notification.FLAG_NO_CLEAR | Notification.FLAG_AUTO_CANCEL;
@@ -256,13 +262,13 @@ public class FloatWindowView extends FrameLayout {
                     if (isAccessibilitySettingsOn(getContext())) {
                         EnvelopeService.back();
                     } else {
+                        Toast.makeText(getContext(), String.format(getResources().getString(R.string.tip_open_accessibility), getResources().getString(R.string.app_name)),
+                                Toast.LENGTH_LONG).show();
                         // 打开系统设置中辅助功能
                         Intent intent = new Intent(
                                 android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         getContext().startActivity(intent);
-                        Toast.makeText(getContext(), String.format(getResources().getString(R.string.tip_open_accessibility), getResources().getString(R.string.app_name)),
-                                Toast.LENGTH_LONG).show();
                     }
 
                 }
